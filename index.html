@@ -165,6 +165,19 @@ footer{padding:26px 0 40px;color:var(--mut);font-size:15px}
 .fw{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 @media (max-width:820px){.jg{grid-template-columns:1fr}.hire{margin-left:8px}}
 @media (prefers-reduced-motion:reduce){.avail i{animation:none}}
+
+/* phone fixes: 3D on touch, nav fits on small screens */
+@keyframes sway{0%,100%{transform:rotateY(-14deg) rotateX(6deg)}50%{transform:rotateY(-2deg) rotateX(2deg)}}
+@media (hover:none){.viz{animation:sway 6s ease-in-out infinite}}
+@media (prefers-reduced-motion:reduce){.viz{animation:none}}
+.t{-webkit-tap-highlight-color:transparent}
+.t:active{box-shadow:0 8px 0 rgba(15,74,44,.25),0 26px 36px -14px rgba(15,74,44,.45)}
+@media (max-width:700px){
+.tabs .w{flex-wrap:wrap;overflow:visible;gap:6px;padding:8px 12px}
+.tabs a{padding:7px 11px;font-size:14px;gap:6px;border-bottom:1px solid var(--grid);border-radius:8px}
+.hire{margin-left:auto}
+html{scroll-padding-top:110px}
+}
 </style>
 </head>
 <body>
@@ -363,10 +376,14 @@ d.addEventListener('click',function(){d.close()});
 var ids=['top','about','skills','project','journey','contact'],tabs=document.querySelectorAll('.tabs a');
 addEventListener('scroll',function(){var cur='top';ids.forEach(function(i){var e=document.getElementById(i);if(e&&e.getBoundingClientRect().top<120)cur=i});tabs.forEach(function(t){t.classList.toggle('on',t.getAttribute('href')==='#'+cur)})},{passive:true});
 
-if(!matchMedia('(prefers-reduced-motion:reduce)').matches&&matchMedia('(hover:hover)').matches){
-var viz=document.querySelector('.viz');
-function tilt(el,max,base){el.addEventListener('mousemove',function(e){var r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform='perspective(900px) rotateY('+(x*max+base[0])+'deg) rotateX('+(-y*max+base[1])+'deg)'});el.addEventListener('mouseleave',function(){el.style.transform=base[2]||''})}
-tilt(viz,16,[-12,6,'']);
+if(!matchMedia('(prefers-reduced-motion:reduce)').matches){
+var viz=document.querySelector('.viz'),fine=matchMedia('(hover:hover)').matches;
+function tilt(el,max,base){
+function mv(e){var r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform='perspective(900px) rotateY('+(x*max+base[0])+'deg) rotateX('+(-y*max+base[1])+'deg)'}
+function rs(){el.style.transform=base[2]||''}
+el.addEventListener('pointerdown',mv);el.addEventListener('pointermove',mv);
+['pointerleave','pointerup','pointercancel'].forEach(function(n){el.addEventListener(n,rs)})}
+if(fine)tilt(viz,16,[-12,6,'']);
 document.querySelectorAll('.kpis div,.sk,.og div,.facts div,.cg a').forEach(function(c){c.classList.add('t');tilt(c,10,[0,0,''])});
 }
 function send(f){location.href='mailto:p26998447@gmail.com?subject='+encodeURIComponent('Internship enquiry from '+f.n.value)+'&body='+encodeURIComponent(f.m.value);return false}
